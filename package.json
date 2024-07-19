@@ -5,7 +5,9 @@
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
   "scripts": {
-    "build": "nest build",
+    "build": "npm run prisma:generate && nest build",
+    "prisma:generate":"prisma generate",
+    "postinstall":"prisma generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -36,6 +38,7 @@
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
+    "vercel":"^34.3.1",
     "service": "^0.1.4",
     "typeorm": "^0.3.20"
   },
