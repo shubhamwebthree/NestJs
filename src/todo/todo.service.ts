@@ -6,35 +6,59 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TodoService {
-  constructor(private readonly databaseService : DatabaseService){}
-  
-  async create(createTodoDto: CreateTodoDto) {
-  try {
-    let data:Prisma.TodoCreateInput
-    data.description = createTodoDto.description
-    data.task = createTodoDto.task
-    data.status = 'ACTIVE'
- 
-    return await this.databaseService.todo.create({data});
-  } catch (error) {
-    
+  constructor(private readonly databaseService: DatabaseService){}
+
+  async create(createTodoDto: CreateTodoDto, email: string){
+    try{
+      const user = await this.databaseService.user.findUnique({ where: { email } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      let data: Prisma.TodoCreateInput = {
+        description : createTodoDto.description,
+        task: createTodoDto.task,
+        status : 'ACTIVE',
+        user: {
+          connect: { email: user.email },
+        },
+      }
+      return  this.databaseService.todo.create({data});
+    }catch(err){
+      return err
     }
-
+    
   }
 
-  findAll() {
-    return `This action returns all todo`;
+  async findAll( userEmail: string) {
+    return  this.databaseService.todo.findMany({
+      where:{
+        userEmail: userEmail
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async findOne(id: number) {
+    return this.databaseService.todo.findFirst({
+      where:{
+        id: id
+      }
+    })
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async update(id: number, updateTodoDto: UpdateTodoDto) {
+    return this.databaseService.todo.update({
+      where:{
+        id:id
+      },
+      data: updateTodoDto
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: number) {
+    return this.databaseService.todo.delete({
+      where:{
+        id: id
+      }
+    });
   }
 }
